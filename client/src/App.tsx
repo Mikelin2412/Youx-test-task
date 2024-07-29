@@ -1,7 +1,14 @@
 import React from 'react';
+import Home from './pages/home/Home';
+import Header from './components/header/Header';
 
-function App() {
-  return <h1>Welcome to React App!</h1>;
-}
+const App: React.FC = () => {
+  return (
+    <>
+      <Header />
+      <Home />
+    </>
+  );
+};
 
 export default App;
