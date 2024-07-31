@@ -1,36 +1,54 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { User as UserModel } from '@prisma/client';
 
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
-@Controller()
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('users')
-  async getAllUsers(): Promise<UserModel[]> {
+  @Get('all')
+  getAllUsers(): Promise<UserModel[]> {
     return this.userService.findAllUsers();
   }
 
-  @Get('user/:id')
-  async getUserById(@Param('id') id: string): Promise<UserModel | null> {
-    const user = this.userService.findUserById({ id: Number(id) });
-    return user;
+  @Get(':id')
+  getUserById(@Param('id') id: string): Promise<UserModel> {
+    return this.userService.findUserById({ id: Number(id) });
   }
 
-  @Post('user')
-  async createNewUser(
+  @Post()
+  @UsePipes(new ValidationPipe())
+  createNewUser(
     @Body()
-    userData: {
-      name: string;
-      surname: string;
-      height: number;
-      weight: number;
-      sex: string;
-      address: string;
-      image: string;
-    },
+    createUserDto: CreateUserDto,
   ): Promise<UserModel> {
-    return this.userService.createUser(userData);
+    return this.userService.createUser(createUserDto);
+  }
+
+  @Patch(':id')
+  @UsePipes(new ValidationPipe())
+  updateUserInfo(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserModel> {
+    return this.userService.updateUserInfo(+id, updateUserDto);
+  }
+
+  @Delete(':id')
+  deleteUser(@Param('id') id: string) {
+    return this.userService.deleteUser(+id);
   }
 }
