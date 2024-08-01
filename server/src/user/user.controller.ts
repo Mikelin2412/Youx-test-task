@@ -6,10 +6,12 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { User as UserModel } from '@prisma/client';
+import { PaginatedUsers } from 'src/types/paginated-users';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -20,8 +22,11 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('all')
-  getAllUsers(): Promise<UserModel[]> {
-    return this.userService.findAllUsers();
+  getAllUsers(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ): Promise<UserModel[] | PaginatedUsers<UserModel>> {
+    return this.userService.findAllUsers(+page, +limit);
   }
 
   @Get(':id')

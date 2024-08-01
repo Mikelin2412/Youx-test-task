@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
+import { PaginatedUsers } from 'src/types/paginated-users';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -27,9 +28,44 @@ export class UserService {
     return createdUser;
   }
 
-  async findAllUsers(): Promise<User[]> {
-    const users = await this.prisma.user.findMany();
+  async findAllUsers(
+    page?: number,
+    limit?: number,
+  ): Promise<User[] | PaginatedUsers<User>> {
+    if (page && limit) {
+      return this.findUsersWithPagination(page, limit);
+    }
+
+    const users = await this.prisma.user.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
     return users;
+  }
+
+  async findUsersWithPagination(
+    page: number,
+    limit: number,
+  ): Promise<PaginatedUsers<User>> {
+    const [total, users] = await Promise.all([
+      this.prisma.user.count(),
+      this.prisma.user.findMany({
+        take: limit,
+        skip: (page - 1) * limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
+    return {
+      data: users,
+      meta: {
+        total,
+        currentPage: page,
+        limit,
+      },
+    };
   }
 
   async findUserById(

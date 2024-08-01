@@ -19,7 +19,6 @@ export default tseslint.config(
       'simple-import-sort/exports': 'error',
       'react/jsx-uses-react': 'error',
       'react/jsx-uses-vars': 'error',
-      'max-lines': ['warn', { max: 100 }],
     },
   },
   {
