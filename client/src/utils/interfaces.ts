@@ -1,4 +1,5 @@
 export interface User {
+  id: number;
   name: string;
   surname: string;
   height: number;
@@ -6,4 +7,5 @@ export interface User {
   sex: string;
   address: string;
   image: string;
+  deleteFunction: () => void;
 }

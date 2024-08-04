@@ -7,10 +7,12 @@ import {
   Patch,
   Post,
   Query,
-  UsePipes,
-  ValidationPipe,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { User as UserModel } from '@prisma/client';
+import { diskStorage } from 'multer';
 import { PaginatedUsers } from 'src/types/paginated-users';
 
 import { CreateUserDto } from './dto/create-user.dto';
@@ -35,20 +37,60 @@ export class UserController {
   }
 
   @Post()
-  @UsePipes(new ValidationPipe())
+  @UseInterceptors(
+    FileInterceptor('img', {
+      storage: diskStorage({
+        destination: './public',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() +
+            '-' +
+            Math.round(Math.random() * 1e9) +
+            '.' +
+            file.mimetype.split('/')[1];
+          cb(null, `${uniqueSuffix}`);
+        },
+      }),
+    }),
+  )
   createNewUser(
     @Body()
     createUserDto: CreateUserDto,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<UserModel> {
+    if (file) {
+      createUserDto.height = +createUserDto.height;
+      createUserDto.weight = +createUserDto.weight;
+      createUserDto.image = file.filename;
+    }
     return this.userService.createUser(createUserDto);
   }
 
   @Patch(':id')
-  @UsePipes(new ValidationPipe())
+  @UseInterceptors(
+    FileInterceptor('img', {
+      storage: diskStorage({
+        destination: './public',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() +
+            '-' +
+            Math.round(Math.random() * 1e9) +
+            '.' +
+            file.mimetype.split('/')[1];
+          cb(null, `${uniqueSuffix}`);
+        },
+      }),
+    }),
+  )
   updateUserInfo(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<UserModel> {
+    if (file) {
+      updateUserDto.image = file.filename;
+    }
     return this.userService.updateUserInfo(+id, updateUserDto);
   }
 

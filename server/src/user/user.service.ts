@@ -84,6 +84,8 @@ export class UserService {
     id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<User> {
+    if (updateUserDto.height) updateUserDto.height = +updateUserDto.height;
+    if (updateUserDto.weight) updateUserDto.weight = +updateUserDto.weight;
     const existUser = await this.prisma.user.findFirst({
       where: {
         id,
