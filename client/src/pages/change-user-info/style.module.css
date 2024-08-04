@@ -1,0 +1,21 @@
+.fieldsContainer {
+  margin: 30px auto;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.avatar {
+  max-width: 250px;
+  border-radius: 15px;
+}
+
+.avatarContainer {
+  display: flex;
+  gap: 15px;
+}
+
+.uploadImageButton {
+  height: fit-content;
+}
